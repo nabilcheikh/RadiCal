@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Appel_Leaflet_et_Conversion", "Appel_Leaflet_et_Conversion\Appel_Leaflet_et_Conversion.csproj", "{AB55633D-0F24-4083-BB35-EB7FD3E024EE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB55633D-0F24-4083-BB35-EB7FD3E024EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB55633D-0F24-4083-BB35-EB7FD3E024EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB55633D-0F24-4083-BB35-EB7FD3E024EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB55633D-0F24-4083-BB35-EB7FD3E024EE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7537CD42-5577-44F7-9C48-C923E34B6A12}
+	EndGlobalSection
+EndGlobal
