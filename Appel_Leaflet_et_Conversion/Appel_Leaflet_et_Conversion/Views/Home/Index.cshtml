@@ -1,31 +1,21 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <!--
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin="" />
-    -->
-    <!-- @Styles.Render("~/Leaflet/leaflet.css") --> <!-- Pour un appel cshtml -->
-    <link rel="stylesheet" href="~/Leaflet/leaflet.css" /> <!-- Pour un appel par les fichiers locaux -->
-    <!-- https://unpkg.com/leaflet@1.7.1/dist/leaflet.css pour un appel par internet -->
-
-    <!-- Make sure you put Leaflet's .js file AFTER Leaflet's CSS -->
-    <!--
+    
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin="">
     </script>
-    -->
-    <script src="~/Leaflet/leaflet.js"></script> <!-- Pour un appel par les fichiers locaux -->
-    <!-- https://unpkg.com/leaflet@1.7.1/dist/leaflet.js pour un appel par internet -->
-    <!-- @Scripts.Render("~/Leaflet/leaflet.js") --> <!-- Pour un appel cshtml -->
 </head>
 <body>
     <div id="mapid"></div>
-    <input type='button' value='Trouver tous les points' id='get-points-button' />
-    <input type='button' value='Tracer le front de feu' id='get-ff-button' />
-    <input type='button' value='Envoyer le front de feu' id='send-ff-button' />
+    <input type="button" value="Trouver tous les points" id="get-points-button" />
+    <input type="button" value="Tracer le front de feu" id="get-ff-button" />
+    <input type="button" value="Envoyer le front de feu" id="send-ff-button" />
     <script type="text/javascript">
         var mymap = L.map('mapid').setView([43.3, 5.37], 13);
 
@@ -35,34 +25,8 @@
             id: 'mapbox/satellite-v9',
             tileSize: 512,
             zoomOffset: -1,
-            accessToken: 'pk.eyJ1IjoiYWNvcmlhayIsImEiOiJja2hobnZwdG0wamthMnlwOXMwZGRrb3htIn0.sYQmZdCmZH97qwcP4DW8gQ'
+            accessToken: 'pk.eyJ1Ijoic2VpbGUiLCJhIjoiY2toaTZ5eDc3MTJycTJxbnd2amxtbWRkcyJ9.ZpJUGzOfC4drrUzCxr8g8w'
         }).addTo(mymap);
-
-        /* Exemples
-        var marker = L.marker([43.291, 5.362]).addTo(mymap);
-
-        var circle = L.circle([43.2955, 5.362], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: 500
-        }).addTo(mymap);
-
-        var polygon = L.polygon([
-            [43.295, 5.358],
-            [43.2934, 5.36],
-            [43.2919, 5.3575]
-        ]).addTo(mymap);
-
-        marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-        circle.bindPopup("I am a circle.");
-        polygon.bindPopup("I am a polygon.");
-
-        var popup = L.popup()
-            .setLatLng([43.2952, 5.3745])
-            .setContent("I am a standalone popup.")
-            .openOn(mymap);
-        */
 
         var allPointsObjArray = []; // for points objects
         var allPointsGeoJsonArray = []; // for readable geoJson points
@@ -75,24 +39,23 @@
                 "properties": {},
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [e.latlng.lat, e.latlng.ln]
+                    "coordinates": [e.latlng.lat, e.latlng.lng]
                 }
             }
 
             var point;
-
             L.geoJson(geojsonFeature, {
                 pointToLayer: function (feature, latlng) {
                     point = L.circle(e.latlng, {
                         color: 'red',
                         fillColor: '#f03',
                         fillOpacity: 0.5,
-                        radius: 10,
+                        radius: 30,
                         draggable: true,
                     }).bindPopup("<input type='button' value='Supprimer ce point' id='point-delete-button'/>");
                     point.on("click", onPointClick);
-                    allPointsObjArray.push(point)
-                    allPointsGeoJsonArray.push(JSON.stringify(point.toGeoJSON()))
+                    allPointsObjArray.push(point);
+                    allPointsGeoJsonArray.push(JSON.stringify(point.toGeoJSON()));
                     return point;
                 }
             }).addTo(mymap);
