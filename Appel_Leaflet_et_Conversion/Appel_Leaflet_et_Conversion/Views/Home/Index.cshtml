@@ -13,9 +13,18 @@
 </head>
 <body>
     <div id="mapid"></div>
-    <input type="button" value="Trouver tous les points" id="get-points-button" />
-    <input type="button" value="Tracer le front de feu" id="get-ff-button" />
-    <input type="button" value="Envoyer le front de feu" id="send-ff-button" />
+    <div id="all-buttons">
+        <input type="button" value="Construire des points" id="set-points-button" />
+        <input type="button" value="Supprimer les points" id="remove-points-button" />
+        <input type="button" value="Tracer le front de feu" id="get-ff-button" />
+        <input type="button" value="Envoyer le front de feu" id="send-ff-button" />
+        <input type="button" value="Tracer le rectangle" id="create-rectangle-button" />
+        <input type="button" value="Supprimer les rectangles" id="remove-rectangles-button" />
+    </div>
+    <div id="indication-rectangle">
+        <p><center>Appuyez sur deux endroits de la carte pour former le rectangle</center></p>
+    </div>
+    
     <script type="text/javascript">
         var mymap = L.map('mapid').setView([43.3, 5.37], 13);
 
@@ -30,7 +39,15 @@
 
         var allPointsObjArray = []; // for points objects
         var allPointsGeoJsonArray = []; // for readable geoJson points
+        var pointsForRectangle = [];
         var frontLine; // Ligne représentant le front de feu
+        var layerAddPoints;
+        var layerGroup = new L.LayerGroup();
+        var layerRectangleGroup = new L.LayerGroup();
+        var indicationRectangle = document.getElementById("indication-rectangle");
+        indicationRectangle.hidden = true;
+        layerGroup.addTo(mymap);
+        layerRectangleGroup.addTo(mymap);
 
         // Fonction pour créer des points
         function onMapClick(e) {
@@ -44,7 +61,7 @@
             }
 
             var point;
-            L.geoJson(geojsonFeature, {
+            layerAddPoints = L.geoJson(geojsonFeature, {
                 pointToLayer: function (feature, latlng) {
                     point = L.circle(e.latlng, {
                         color: 'red',
@@ -58,10 +75,66 @@
                     allPointsGeoJsonArray.push(JSON.stringify(point.toGeoJSON()));
                     return point;
                 }
-            }).addTo(mymap);
+            });
+            layerGroup.addLayer(layerAddPoints);
+        }
+        var button = document.getElementById("set-points-button");
+        $('#set-points-button').on("click", function () {
+            if (button.value === 'Construire des points') {
+                mymap.on('click', onMapClick);
+                button.value = 'Arrêter';
+            }
+            else {
+                mymap.off('click', onMapClick);
+                button.value = 'Construire des points';
+            }
+        });
+
+        // Prépare points rectangle 
+        function setRectangle() {
+            var allButtons = document.getElementById("all-buttons");
+            allButtons.hidden = true;
+            indicationRectangle.hidden = false;
+            mymap.on('click', pointsRectangle);          
+        }
+        $("#create-rectangle-button").on("click", setRectangle);
+
+        // Point click pour rectangle
+        function pointsRectangle(e) {
+            var allButtons = document.getElementById("all-buttons");
+            point = L.circle(e.latlng);
+            pointsForRectangle.push(point);
+
+            if (pointsForRectangle.length == 2) {
+                createRectangle(pointsForRectangle[0]._latlng, pointsForRectangle[1]._latlng);
+                mymap.off("click", pointsRectangle);
+                indicationRectangle.hidden = true;
+                allButtons.hidden = false;
+                pointsForRectangle = [];
+            }
         }
 
-        mymap.on('click', onMapClick);
+
+        // Construit un rectangle dans la map et zoom dessus
+        function createRectangle(p1, p2) {
+            // define rectangle geographical bounds
+            var bounds = [[p1.lat, p1.lng], [p2.lat, p2.lng]];
+
+            // create an orange rectangle
+            var rectangle = L.rectangle(bounds, { color: "#ff7800", weight: 1 });
+            layerRectangleGroup.addLayer(rectangle);
+
+            // zoom the map to the rectangle bounds
+            mymap.fitBounds(bounds);
+        }
+        
+        // Supprimer les rectangles
+        function deleteRectangles() {
+            mymap.removeLayer(layerRectangleGroup);
+            layerRectangleGroup = new L.LayerGroup();
+            layerRectangleGroup.addTo(mymap);
+        }
+        $("#remove-rectangles-button").on("click", deleteRectangles)
 
         // fonction pour supprimer les points en cliquant sur leur popup
         function onPointClick() {
@@ -76,13 +149,22 @@
             });
         }
 
+        // fonction pour supprimer tous les points
+        function deleteAllPoints() {
+            allPointsGeoJsonArray = [];
+            allPointsObjArray = [];
+            mymap.removeLayer(layerGroup);
+            layerGroup = new L.LayerGroup();
+            layerGroup.addTo(mymap);
+        }
+        $('#remove-points-button').on("click", deleteAllPoints);
+
         // On retourne les coordonnées des points 1 par 1
         function getAllPoints() {
             allPointsObjArray.forEach((point) => {
                 alert(point.latlng);
             });
         }
-
         $("#get-points-button").on("click", getAllPoints);
 
         // Traçage du front de feu
@@ -112,6 +194,9 @@
         }
 
         $("#send-ff-button").on("click", postFireFront);
+
+
+
     </script>
 </body>
 </html>
