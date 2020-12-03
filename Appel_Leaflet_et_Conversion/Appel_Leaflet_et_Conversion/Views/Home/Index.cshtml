@@ -75,7 +75,7 @@
                 "properties": {},
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [e.latlng.lat, e.latlng.ln]
+                    "coordinates": [e.latlng.lat, e.latlng.lng]
                 }
             }
 
@@ -143,9 +143,15 @@
         $("#get-ff-button").on("click", getFireFront);
 
         function postFireFront() {
-            $.post("api/FireFront", JSON.stringify(frontLine._latlngs), function () {
-                alert("Succes de la requete POST")
-            }, "json")
+            $.post("/api/FireFront",
+                {
+                    listePointsJSON: JSON.stringify(frontLine._latlngs)
+                },
+                function (fireFront) {
+                    alert("Succes de l'envoi du front de feu");
+                },
+                "json"
+            );
         }
 
         $("#send-ff-button").on("click", postFireFront);
