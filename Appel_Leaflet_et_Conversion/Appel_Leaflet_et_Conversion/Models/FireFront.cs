@@ -12,10 +12,16 @@ namespace Appel_Leaflet_et_Conversion.Models
 
         public List<Point> listePoints { get; set; }
 
+        public string rectangleJSON { get; set; }
+
+        public List<Point> rectangle { get; set; }
+
         public FireFront()
         {
             listePointsJSON = null;
             listePoints = new List<Point>();
+            rectangleJSON = null;
+            rectangle = new List<Point>();
         }
     }
 }

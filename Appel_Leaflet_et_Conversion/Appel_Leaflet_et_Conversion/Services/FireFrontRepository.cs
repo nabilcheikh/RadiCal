@@ -19,10 +19,9 @@ namespace Appel_Leaflet_et_Conversion.Services
         {
             try
             {
-                // Décodage du JSON
+                // Décodage de listePointsJSON
                 fireFront = ff;
                 string[] temp = fireFront.listePointsJSON.Split('{','}');
-                int j = 0;
                 for (int i = 0; i < temp.Length; i++)
                 {
                     if (temp[i].Length > 2)
@@ -34,11 +33,30 @@ namespace Appel_Leaflet_et_Conversion.Services
                         p.lat = double.Parse(latitude);
                         p.lng = double.Parse(longitude);
                         fireFront.listePoints.Add(p);
-                        j++;
                     }
                 }
-                // Conversion des coordonnées latitude et longitude (WGS84) des points en coordonnées X et Y (Lambert93)
+                // Décodage de rectangleJSON
+                temp = fireFront.rectangleJSON.Split('{', '}');
+                for (int i = 0; i < temp.Length; i++)
+                {
+                    if (temp[i].Length > 2)
+                    {
+                        string[] coords = temp[i].Split(',');
+                        string latitude = coords[0].Substring(6).Replace('.', ',');
+                        string longitude = coords[1].Substring(6).Replace('.', ',');
+                        Point p = new Point();
+                        p.lat = double.Parse(latitude);
+                        p.lng = double.Parse(longitude);
+                        fireFront.rectangle.Add(p);
+                    }
+                }
+                // Conversion des coordonnées latitude et longitude (WGS84) des points du front de feu en coordonnées X et Y (Lambert93)
                 foreach (Point p in fireFront.listePoints)
+                {
+                    WGS84ToLambert93(p);
+                }
+                // Conversion des coordonnées latitude et longitude (WGS84) des points du rectangle en coordonnées X et Y (Lambert93)
+                foreach (Point p in fireFront.rectangle)
                 {
                     WGS84ToLambert93(p);
                 }
