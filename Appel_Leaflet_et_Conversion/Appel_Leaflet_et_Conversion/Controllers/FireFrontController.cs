@@ -18,18 +18,6 @@ namespace Appel_Leaflet_et_Conversion.Controllers
             this.fireFrontRepository = new FireFrontRepository();
         }
 
-        // GET: api/FireFront
-        public FireFront[] Get()
-        {
-            return null;
-        }
-        /*
-        // GET: api/FireFront/5
-        public string Get(int id)
-        {
-            return "value";
-        }
-        */
         // POST: api/FireFront
         public HttpResponseMessage Post(FireFront fireFront)
         {
@@ -37,16 +25,6 @@ namespace Appel_Leaflet_et_Conversion.Controllers
             var response = Request.CreateResponse<FireFront>(System.Net.HttpStatusCode.Created, fireFront);
             return response;
         }
-        /*
-        // PUT: api/FireFront/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
 
-        // DELETE: api/FireFront/5
-        public void Delete(int id)
-        {
-        }
-        */
     }
 }

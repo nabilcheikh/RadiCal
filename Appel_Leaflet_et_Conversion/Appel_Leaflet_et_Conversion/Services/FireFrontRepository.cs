@@ -29,9 +29,11 @@ namespace Appel_Leaflet_et_Conversion.Services
                         string[] coords = temp[i].Split(',');
                         string latitude = coords[0].Substring(6).Replace('.', ',');
                         string longitude = coords[1].Substring(6).Replace('.', ',');
+                        string altitude = coords[2].Substring(6).Replace('.', ',');
                         Point p = new Point();
                         p.lat = double.Parse(latitude);
                         p.lng = double.Parse(longitude);
+                        p.alt = double.Parse(altitude);
                         fireFront.listePoints.Add(p);
                     }
                 }
@@ -44,9 +46,11 @@ namespace Appel_Leaflet_et_Conversion.Services
                         string[] coords = temp[i].Split(',');
                         string latitude = coords[0].Substring(6).Replace('.', ',');
                         string longitude = coords[1].Substring(6).Replace('.', ',');
+                        string altitude = coords[2].Substring(6).Replace('.', ',');
                         Point p = new Point();
                         p.lat = double.Parse(latitude);
                         p.lng = double.Parse(longitude);
+                        p.alt = double.Parse(altitude);
                         fireFront.rectangle.Add(p);
                     }
                 }

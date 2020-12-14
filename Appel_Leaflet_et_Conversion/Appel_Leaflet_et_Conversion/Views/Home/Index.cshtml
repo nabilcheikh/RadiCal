@@ -25,14 +25,15 @@
     <div id="indication-rectangle">
         <p><center>Appuyez sur deux endroits de la carte pour former le rectangle</center></p>
     </div>
-    <br />
+
     <div>
         <p><center><strong>Tests appel prevision météo</strong></center></p>
         <input type="button" value="Appel web service météo sur le front et le rectangle" id="weather-button" />
-        <div id="meteo-container">
-            <br />
-            <p>Test</p>
-        </div>
+    </div>
+
+    <div>
+        <p><center><strong>Tests appel altitude</strong></center></p>
+        <input type="button" value="Appel web service altitude" id="alti-button" />
     </div>
     <script type="text/javascript">
         var mymap = L.map('mapid').setView([43.3, 5.37], 13);
@@ -46,11 +47,10 @@
             accessToken: 'pk.eyJ1Ijoic2VpbGUiLCJhIjoiY2toaTZ5eDc3MTJycTJxbnd2amxtbWRkcyJ9.ZpJUGzOfC4drrUzCxr8g8w'
         }).addTo(mymap);
 
-        var meteoFireFront = [];
-        var meteoRectangle = [];
+        var meteo;
         var postFireFrontResponse;
+        var fireFrontCoords = [];
         var allPointsObjArray = []; // for points objects
-        var allPointsGeoJsonArray = []; // for readable geoJson points
         var pointsForRectangle = [];
         var frontLine; // Ligne représentant le front de feu
         var layerAddPoints;
@@ -84,7 +84,6 @@
                     }).bindPopup("<input type='button' value='Supprimer ce point' id='point-delete-button'/>");
                     point.on("click", onPointClick);
                     allPointsObjArray.push(point);
-                    allPointsGeoJsonArray.push(JSON.stringify(point.toGeoJSON()));
                     return point;
                 }
             });
@@ -160,19 +159,18 @@
             $("#point-delete-button:visible").click(function () {
                 var index = allPointsObjArray.indexOf(tempPoint);
                 allPointsObjArray.splice(index, 1);
-                allPointsGeoJsonArray.splice(index, 1);
                 mymap.removeLayer(tempPoint);
             });
         }
 
         // fonction pour supprimer tous les points
         function deleteAllPoints() {
-            allPointsGeoJsonArray = [];
             allPointsObjArray = [];
             mymap.removeLayer(layerGroup);
             layerGroup = new L.LayerGroup();
             layerGroup.addTo(mymap);
         }
+
         $('#remove-points-button').on("click", deleteAllPoints);
 
         // On retourne les coordonnées des points 1 par 1
@@ -181,6 +179,7 @@
                 alert(point.latlng);
             });
         }
+
         $("#get-points-button").on("click", getAllPoints);
 
         // Traçage du front de feu
@@ -189,7 +188,7 @@
                 mymap.removeLayer(frontLine);
             }
             if (allPointsObjArray.length >= 2) {
-                var fireFrontCoords = [];
+                fireFrontCoords = [];
                 for (var i = 0; i < allPointsObjArray.length; i++) {
                     var lat = allPointsObjArray[i]._latlng.lat;
                     var lng = allPointsObjArray[i]._latlng.lng;
@@ -204,87 +203,103 @@
 
         // Envoi du front de feu a notre API C#
         function postFireFront() {
+            var listePoints = [];
+            fireFrontCoords.forEach(function (item) {
+                var point = new Object();
+                point.lat = item[0];
+                point.lng = item[1];
+                point.alt = 0;
+                listePoints.push(point);
+            });
             var rectangle = layerRectangleGroup.getLayers()[0];
-            $.post("/api/FireFront",
-                {
-                    listePointsJSON: JSON.stringify(frontLine._latlngs),
-                    rectangleJSON: JSON.stringify(rectangle._latlngs)
-                },
-                function (fireFront) {
-                    console.log("Succes de l'envoi du front de feu");
-                    postFireFrontResponse = fireFront;
-                },
-                "json"
-            );
+            var listePointsRectangle = [];
+            rectangle._latlngs[0].forEach(function (item) {
+                var point = new Object();
+                point.lat = item.lat;
+                point.lng = item.lng;
+                point.alt = 0;
+                listePointsRectangle.push(point);
+            });
+            var doubleListe = new Object();
+            doubleListe.listePoints = listePoints;
+            doubleListe.rectangle = listePointsRectangle;
+            postAlti(doubleListe, function () {
+                $.post("/api/FireFront",
+                    {
+                        listePointsJSON: JSON.stringify(listePoints),
+                        rectangleJSON: JSON.stringify(listePointsRectangle)
+                    },
+                    function (fireFront) {
+                        console.log("Succes de l'envoi du front de feu");
+                        postFireFrontResponse = fireFront;
+                    },
+                    "json"
+                );
+            });
         }
 
         $("#send-ff-button").on("click", postFireFront);
 
         // Envoi du front de feu au webservice : https://www.prevision-meteo.ch 
         function postWeather() {
-            // Division de la fonction en deux sous fonctions pour empêcher l'aléatoire crée par AJAX
-            postWeather_listePoints(function () {
-                console.log('postWeather_listePoints DONE');
-                if ($("#meteo-container").html() == undefined) {
-                    $("#meteo-container").html("<br/><p = id=\"meteoFireFront\">" + "Front de feu : " + meteoFireFront + "</p>");
-                } else if ($("#meteoFireFront").html() == undefined) {
-                    $("#meteo-container").html($("#meteo-container").html() + "<br/><p = id=\"meteoFireFront\">" + "Front de feu : " + meteoFireFront + "</p>");
-                } else {
-                    $("#meteoFireFront").html("Front de feu : " + meteoFireFront);
-                }
-            });
-            postWeather_rectangle(function () {
-                console.log('postWeather_rectangle DONE');
-                if ($("#meteo-container").html() == undefined) {
-                    $("#meteo-container").html("<br/><p id=\"rectangle\">" + "Rectangle : " + meteoRectangle + "</p>");
-                } else if ($("#meteoRectangle").html() == undefined) {
-                    $("#meteo-container").html($("#meteo-container").html() + "<br/><p id=\"meteoRectangle\">" + "Rectangle : " + meteoRectangle + "</p>");
-                } else {
-                    $("#meteoRectangle").html("Rectangle : " + meteoRectangle);
-                }
-            });
-        }
-
-        // Requetes POST pour récupérer la météo pour chaque point
-        function postWeather_listePoints(_callback) {
-            var i = 0;
-            postFireFrontResponse.listePoints.forEach(function (point) {
-                var URL = "https://www.prevision-meteo.ch/services/json/lat=" + point.lat + "lng=" + point.lng;
-                $.post(URL,
-                    function (reponseMeteo) {
-                        console.log("Succes de la requete meteo front de feu " + i);
-                        meteoFireFront[i] = reponseMeteo;
-                        if (i == postFireFrontResponse.listePoints.length - 1) {
-                            _callback();
-                        }
-                        i++;
-                    },
-                    "json"
-                );
-            });
-        }
-
-        // Requetes POST pour récupérer la météo du rectangle
-        function postWeather_rectangle(_callback) {
-            var i = 0;
-            postFireFrontResponse.rectangle.forEach(function (point) {
-                var URL = "https://www.prevision-meteo.ch/services/json/lat=" + point.lat + "lng=" + point.lng;
-                $.post(URL,
-                    function (reponseMeteo) {
-                        console.log("Succes de la requete meteo rectangle " + i);
-                        meteoRectangle[i] = reponseMeteo;
-                        if (i == postFireFrontResponse.rectangle.length - 1) {
-                            _callback();
-                        }
-                        i++;
-                    },
-                    "json"
-                );
-            });
+            var centre = new Object();
+            centre.lat = postFireFrontResponse.rectangle[0].lat + (postFireFrontResponse.rectangle[1].lat - postFireFrontResponse.rectangle[0].lat) / 2;
+            centre.lng = postFireFrontResponse.rectangle[0].lng + (postFireFrontResponse.rectangle[3].lng - postFireFrontResponse.rectangle[0].lng) / 2;
+            var URL = "https://www.prevision-meteo.ch/services/json/lat=" + centre.lat + "lng=" + centre.lng;
+            $.get(URL,
+                function (reponseMeteo) {
+                    console.log("Succes de la requete meteo");
+                    meteo = reponseMeteo;
+                },
+                "json"
+            );
         }
 
         $("#weather-button").on("click", postWeather);
 
+        // Requete POST pour avoir l'altitude pour chacun des points (Jawg Elevation API)
+        // Access token of Clément Allegra : blmZaoiKl4P3JaEyF7aIb7WljllKqHjfu36NQzUpU61azGApHn9YPE6hre5WoXux
+        function postAlti(liste, callbackFunction) {
+            var URL = "https://api.jawg.io/elevations/locations?access-token=blmZaoiKl4P3JaEyF7aIb7WljllKqHjfu36NQzUpU61azGApHn9YPE6hre5WoXux";
+            var points = "";
+            for (var i = 0; i < liste.listePoints.length; i++) {
+                points += liste.listePoints[i].lat + "," + liste.listePoints[i].lng + "|";
+            }
+            for (var i = 0; i < liste.rectangle.length; i++) {
+                if (i == liste.rectangle.length - 1) {
+                    points += liste.rectangle[i].lat + "," + liste.rectangle[i].lng;
+                } else {
+                    points += liste.rectangle[i].lat + "," + liste.rectangle[i].lng + "|";
+                }
+            }
+            $.ajax({
+                url: URL,
+                type: "POST",
+                data: JSON.stringify({ locations: points }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (reponseAlt) {
+                    console.log("Succes des la requete altitude");
+                    var i = 0;
+                    var j = 0;
+                    while (i < liste.listePoints.length) {
+                        liste.listePoints[i].alt = reponseAlt[i].elevation;
+                        i++;
+                    }
+                    while (j < liste.rectangle.length) {
+                        liste.rectangle[j].alt = reponseAlt[i].elevation;
+                        j++;
+                        i++;
+                    }
+                    callbackFunction();
+                }
+            })
+        }
+
+        $("#alti-button").on("click", function () {
+            postAlti(postFireFrontResponse.listePoints);
+            postAlti(postFireFrontResponse.rectangle);
+        });
     </script>
 </body>
 </html>
