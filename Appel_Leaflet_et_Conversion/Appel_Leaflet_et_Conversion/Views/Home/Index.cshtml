@@ -31,10 +31,6 @@
         <input type="button" value="Appel web service météo sur le front et le rectangle" id="weather-button" />
     </div>
 
-    <div>
-        <p><center><strong>Tests appel altitude</strong></center></p>
-        <input type="button" value="Appel web service altitude" id="alti-button" />
-    </div>
     <script type="text/javascript">
         var mymap = L.map('mapid').setView([43.3, 5.37], 13);
 
@@ -279,7 +275,7 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (reponseAlt) {
-                    console.log("Succes des la requete altitude");
+                    console.log("Succes de la requete altitude");
                     var i = 0;
                     var j = 0;
                     while (i < liste.listePoints.length) {
@@ -295,11 +291,6 @@
                 }
             })
         }
-
-        $("#alti-button").on("click", function () {
-            postAlti(postFireFrontResponse.listePoints);
-            postAlti(postFireFrontResponse.rectangle);
-        });
     </script>
 </body>
 </html>
