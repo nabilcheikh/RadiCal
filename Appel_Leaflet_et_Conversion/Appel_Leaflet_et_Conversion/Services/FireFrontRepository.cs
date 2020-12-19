@@ -27,13 +27,13 @@ namespace Appel_Leaflet_et_Conversion.Services
                     if (temp[i].Length > 2)
                     {
                         string[] coords = temp[i].Split(',');
-                        string latitude = coords[0].Substring(6).Replace('.', ',');
-                        string longitude = coords[1].Substring(6).Replace('.', ',');
-                        string altitude = coords[2].Substring(6).Replace('.', ',');
+                        //string latitude = coords[0].Substring(6).Replace('.', ',');
+                        //string longitude = coords[1].Substring(6).Replace('.', ',');
+                        //string altitude = coords[2].Substring(6).Replace('.', ',');
                         Point p = new Point();
-                        p.lat = double.Parse(latitude);
-                        p.lng = double.Parse(longitude);
-                        p.alt = double.Parse(altitude);
+                        p.lat = double.Parse(coords[0].Substring(6));
+                        p.lng = double.Parse(coords[1].Substring(6));
+                        p.alt = double.Parse(coords[2].Substring(6));
                         fireFront.listePoints.Add(p);
                     }
                 }
@@ -44,13 +44,13 @@ namespace Appel_Leaflet_et_Conversion.Services
                     if (temp[i].Length > 2)
                     {
                         string[] coords = temp[i].Split(',');
-                        string latitude = coords[0].Substring(6).Replace('.', ',');
-                        string longitude = coords[1].Substring(6).Replace('.', ',');
-                        string altitude = coords[2].Substring(6).Replace('.', ',');
+                        //string latitude = coords[0].Substring(6).Replace('.', ',');
+                        //string longitude = coords[1].Substring(6).Replace('.', ',');
+                        //string altitude = coords[2].Substring(6).Replace('.', ',');
                         Point p = new Point();
-                        p.lat = double.Parse(latitude);
-                        p.lng = double.Parse(longitude);
-                        p.alt = double.Parse(altitude);
+                        p.lat = double.Parse(coords[0].Substring(6));
+                        p.lng = double.Parse(coords[1].Substring(6));
+                        p.alt = double.Parse(coords[2].Substring(6));
                         fireFront.rectangle.Add(p);
                     }
                 }
